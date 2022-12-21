@@ -78,4 +78,8 @@ def complete_item(id):
 
     return item
 
+def fetch_to_do_id_from_board(id):
+    to_do_id = id
+
+    return to_do_id     
 
