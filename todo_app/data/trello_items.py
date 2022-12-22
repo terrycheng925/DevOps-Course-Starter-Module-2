@@ -80,7 +80,6 @@ def start_item(id):
 
 # done a item with id, and move the item from doing to done
 def complete_item(id):
-
     done_list = get_list('Done')
     card = move_card_to_a_list(id, done_list)
 
