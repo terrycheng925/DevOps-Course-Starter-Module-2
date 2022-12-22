@@ -16,35 +16,6 @@ def build_params(params = {}):
     return full_params
 
 
-# def get_boards():
-#     """
-#     Get list of a Boards
-
-#     Returns:
-#         return a list of trello boards .
-#     """
-#     params = build_params()
-#     url = build_url('/members/me/boards')
-#     print(url)
-#     response = requests.get(url, params = params)
-#     boards = response.json()
-
-#     return boards
-
-
-# def get_board(name):
-#     """
-#     Get the board from a name
-
-#     Args:
-#         name (str): The name of the list.
-
-#     Returns:
-#         board: return the board, or none if name not match
-#     """
-#     boards = get_boards()
-#     return next((board for board in boards if board['name'] == name), None)
-
 
 
 # Get list on a Board, return lists
@@ -59,15 +30,15 @@ def get_lists():
 
 # Get a list with a specified name
 def get_list(name):
-
     lists = get_lists()
-    return next((list for list in lists if list['name'] == name), None)
+    for list in lists :
+        if list['name'] == name :
+            return list 
 
 
 # get a list of cards
 def get_items():
     lists = get_lists()
-
     items = []
     for card_list in lists:
         for card in card_list['cards']:
@@ -79,7 +50,10 @@ def get_items():
 # get a card with ID
 def get_item(id):
     items = get_items()
-    return next((item for item in items if item['id'] == id), None)
+    for item in items:
+        if item['id'] == id :
+            return item 
+
 
 
 # create a card with a name, default is to do list
@@ -125,6 +99,5 @@ def move_card_to_a_list(card_id, list):
     url = build_url('/cards/' + card_id)
 
     response = requests.put(url, params = params)
-    card = response.json()
+    return  response.json()
 
-    return card
