@@ -1,85 +1,186 @@
-from flask import session
+from todo_app.data.todo_item import Item 
 
-_DEFAULT_ITEMS = [
-    { 'id': 1, 'status': 'Not Started', 'title': 'List saved todo items' },
-    { 'id': 2, 'status': 'Not Started', 'title': 'Allow new items to be added' }
-]
+import requests
+from flask import current_app as app
+
+
+def get_auth_params():
+    return { 'key': app.config['TRELLO_API_KEY'], 'token': app.config['TRELLO_API_SECRET'] }
+
+def build_url(endpoint):
+    return app.config['TRELLO_BASE_URL'] + endpoint
+
+def build_params(params = {}):
+    full_params = get_auth_params()
+    full_params.update(params)
+    return full_params
+
+
+def get_boards():
+    """
+    Get list of a Boards
+
+    Returns:
+        return a list of trello boards .
+    """
+    params = build_params()
+    url = build_url('/members/me/boards')
+
+    response = requests.get(url, params = params)
+    boards = response.json()
+
+    return boards
+
+
+def get_board(name):
+    """
+    Get the board from a name
+
+    Args:
+        name (str): The name of the list.
+
+    Returns:
+        board: return the board, or none if name not match
+    """
+    boards = get_boards()
+    return next((board for board in boards if board['name'] == name), None)
+
+
+def get_lists():
+    """
+    Get lists on a Board
+
+    Returns:
+        list: a list from a board.
+    """
+    params = build_params({ 'cards': 'open' }) # Only return cards that have not been archived
+    url = build_url('/boards/%s/lists' % app.config['TRELLO_BOARD_ID'])
+
+    response = requests.get(url, params = params)
+    lists = response.json()
+
+    return lists
+
+
+def get_list(name):
+    """
+    Get the list from a name.
+
+    Args:
+        name (str): The name of the list.
+
+    Returns:
+        list: The list and its items (cards), or None if no list matches the specified name.
+    """
+    lists = get_lists()
+    return next((list for list in lists if list['name'] == name), None)
 
 
 def get_items():
     """
-    Fetches all saved items from the session.
+    Fetches all items (known as "cards") from Trello.
 
     Returns:
         list: The list of saved items.
     """
-    return session.get('items', _DEFAULT_ITEMS)
+    lists = get_lists()
+
+    items = []
+    for card_list in lists:
+        for card in card_list['cards']:
+            items.append(Item.from_trello_card(card, card_list))
+
+    return items
 
 
 def get_item(id):
     """
-    Fetches the saved item with the specified ID.
+    get the card from ID
 
     Args:
-        id: The ID of the item.
+        id (str): The ID of the item.
+
+    Returns:
+        item: the card or none if id not match
+    """
+    items = get_items()
+    return next((item for item in items if item['id'] == id), None)
+
+
+def add_item(name):
+    """
+    Creat a card with a name
+
+    Args:
+        name (str): The name of the card
+
+    Returns:
+        item: the card 
+    """
+    todo_list = get_list('To Do')
+
+    params = build_params({ 'name': name, 'idList': todo_list['id'] })
+    url = build_url('/cards')
+
+    response = requests.post(url, params = params)
+    card = response.json()
+
+    return Item.from_trello_card(card, todo_list)
+
+
+def start_item(id):
+    """
+    Moves the item with the specified ID to the "Doing" list in Trello.
+
+    Args:
+        id (str): The ID of the item.
 
     Returns:
         item: The saved item, or None if no items match the specified ID.
     """
-    items = get_items()
-    return next((item for item in items if item['id'] == int(id)), None)
+    doing_list = get_list('Doing')
+    card = move_card_to_list(id, doing_list)
 
-
-def add_item(title):
-    """
-    Adds a new item with the specified title to the session.
-
-    Args:
-        title: The title of the item.
-
-    Returns:
-        item: The saved item.
-    """
-    items = get_items()
-
-    # Determine the ID for the item based on that of the previously added item
-    id = items[-1]['id'] + 1 if items else 0
-
-    item = { 'id': id, 'title': title, 'status': 'Not Started' }
-
-    # Add the item to the list
-    items.append(item)
-    session['items'] = items
-
-    return item
-
-
-def save_item(item):
-    """
-    Updates an existing item in the session. If no existing item matches the ID of the specified item, nothing is saved.
-
-    Args:
-        item: The item to save.
-    """
-    existing_items = get_items()
-    updated_items = [item if item['id'] == existing_item['id'] else existing_item for existing_item in existing_items]
-
-    session['items'] = updated_items
-
-    return item
+    return Item.from_trello_card(card, doing_list)
 
 
 def complete_item(id):
-    item = get_item(id)
+    """
+    Moves the card to Done with ID
 
-    if item != None:
-        item['status'] = 'Completed'
-        save_item(item)
+    Args:
+        id (str): The ID of the card
 
-    return item
+    Returns:
+        card: the card in 'Done' list
+    """
+    done_list = get_list('Done')
+    card = move_card_to_list(id, done_list)
 
-def fetch_to_do_id_from_board(id):
-    to_do_id = id
+    return Item.from_trello_card(card, done_list)
 
-    return to_do_id     
 
+def uncomplete_item(id):
+    """
+    Moves the card to 'To Do' list
+
+    Args:
+        id (str): The ID of the item.
+
+    Returns:
+        card: the card in 'To Do' list
+    """
+    todo_list = get_list('To Do')
+    card = move_card_to_list(id, todo_list)
+
+    return Item.from_trello_card(card, todo_list)
+
+
+def move_card_to_list(card_id, list):
+    params = build_params({ 'idList': list['id'] })
+    url = build_url('/cards/%s' % card_id)
+
+    response = requests.put(url, params = params)
+    card = response.json()
+
+    return card
