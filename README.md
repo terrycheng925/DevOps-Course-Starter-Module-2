@@ -1,5 +1,10 @@
-Testing syn locat to remote
+
+
 # DevOps Apprenticeship: Project Exercise
+
+
+
+
 
 ## System Requirements
 
@@ -32,6 +37,29 @@ $ cp .env.template .env  # (first time only)
 ```
 
 The `.env` file is used by flask to set environment variables when running `flask run`. This enables things like development mode (which also enables features like hot reloading when you make a file change). There's also a [SECRET_KEY](https://flask.palletsprojects.com/en/1.1.x/config/#SECRET_KEY) variable which is used to encrypt the flask session cookie.
+
+
+
+## Prerequisite to run the app
+
+1. Registrated Trello account and created a board_ID,
+2. Gengerated API Key and Token.
+   
+   #### To get a board id, use post man or curl command, e.g. https://api.trello.com/1/members/me/boards?fields=name,url&key={{APIKey}}&token={{APIToken}}
+3. Update the .env file with this entries, example as : 
+
+    `TRELLO_API_KEY=`xxxxxxxx1234
+
+    `TRELLO_API_TOKEN=`xxxxxxx123456789xxxx
+
+    `TRELLO_BOARD_ID=`xxxxxx123456
+
+
+4. Trello end point spec here : https://developer.atlassian.com/cloud/trello/rest/api-group-boards/#api-boards-id-put
+
+
+
+
 
 ## Running the App
 
