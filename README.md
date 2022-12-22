@@ -1,4 +1,4 @@
-Testing 
+Testing syn locat to remote
 # DevOps Apprenticeship: Project Exercise
 
 ## System Requirements
