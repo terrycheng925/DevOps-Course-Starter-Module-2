@@ -23,9 +23,10 @@ def get_lists():
     params = build_params({ 'cards': 'open' })  # retun open cards
     url = build_url('/boards/' + app.config['TRELLO_BOARD_ID'] + '/lists')
     response = requests.get(url, params = params)
-    lists = response.json()
+    
+    return response.json()
 
-    return lists
+
 
 
 # Get a list with a specified name
