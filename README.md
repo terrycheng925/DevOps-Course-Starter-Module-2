@@ -79,3 +79,19 @@ You should see output similar to the following:
  * Debugger PIN: 226-556-590
 ```
 Now visit [`http://localhost:5000/`](http://localhost:5000/) in your web browser to view the app.
+
+
+New for Dockerfile
+========
+- add the dockerfile ( however currently it can only be run with flask in Docker )
+- ensure the machines instill docker desktop which and run docker command.
+
+to build docker image : ( in the same folder : e.g. DevOps-Course-Starter-Moudule-2)
+
+$ docker build --tag todo-app .
+
+to run it 
+
+$ docker run -d -p 5000:5000 --env-file .env todo-app
+
+and the in borswer : localhost:5000
