@@ -91,11 +91,14 @@ to build docker image : ( in the same folder : e.g. DevOps-Course-Starter-Moudul
 to build development and production, run the following command 
 
 Develpment :
+```bash
 $ docker build --target development --tag todo-app:dev . 
 $ docker run -d -p 5000:5000 --env-file .env todo-app:dev
+```
 
 Production : 
+```bash
 $ docker build --target production --tag todo-app:prod .
 $ docker run -d -p 5000:5000 --env-file .env todo-app:dev
-
+```
 and then in borswer : localhost:5000
