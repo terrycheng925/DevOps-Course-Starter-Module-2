@@ -88,10 +88,14 @@ New for Dockerfile
 
 to build docker image : ( in the same folder : e.g. DevOps-Course-Starter-Moudule-2)
 
-$ docker build --tag todo-app .
+to build development and production, run the following command 
 
-to run it 
+Develpment :
+$ docker build --target development --tag todo-app:dev . 
+$ docker run -d -p 5000:5000 --env-file .env todo-app:dev
 
-$ docker run -d -p 5000:5000 --env-file .env todo-app
+Production : 
+$ docker build --target production --tag todo-app:prod .
+$ docker run -d -p 5000:5000 --env-file .env todo-app:dev
 
 and the in borswer : localhost:5000
