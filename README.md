@@ -98,4 +98,4 @@ Production :
 $ docker build --target production --tag todo-app:prod .
 $ docker run -d -p 5000:5000 --env-file .env todo-app:dev
 
-and the in borswer : localhost:5000
+and then in borswer : localhost:5000
