@@ -88,10 +88,17 @@ New for Dockerfile
 
 to build docker image : ( in the same folder : e.g. DevOps-Course-Starter-Moudule-2)
 
-$ docker build --tag todo-app .
+to build development and production, run the following command 
 
-to run it 
+Develpment :
+```bash
+$ docker build --target development --tag todo-app:dev . 
+$ docker run -d -p 5000:5000 --env-file .env --mount type=bind,source="$(pwd)"/todo_app,target=/DevOpsEx5/todo_app todo-app:dev
+```
 
-$ docker run -d -p 5000:5000 --env-file .env todo-app
-
-and the in borswer : localhost:5000
+Production : 
+```bash
+$ docker build --target production --tag todo-app:prod .
+$ docker run -d -p 5000:5000 --env-file .env todo-app:dev
+```
+and then in browser : localhost:5000
