@@ -93,7 +93,7 @@ to build development and production, run the following command
 Develpment :
 ```bash
 $ docker build --target development --tag todo-app:dev . 
-$ docker run -d -p 5000:5000 --env-file .env todo-app:dev
+$ docker run -d -p 5000:5000 --env-file .env --mount type=bind,source="$(pwd)"/todo_app,target=/DevOpsEx5/todo_app todo-app:dev
 ```
 
 Production : 
